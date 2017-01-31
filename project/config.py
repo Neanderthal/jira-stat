@@ -3,7 +3,7 @@ from ConfigParser import ConfigParser
 
 class Config(object):
     class __Config(object):
-        def __init__(self, file_names):
+        def __init__(self, file_names='settings.cfg'):
             self.config = ConfigParser()
             self._readed_config = self.config.read(file_names)
 
@@ -30,10 +30,12 @@ class Config(object):
 
     instance = None
 
+    def team_members(self):
+        self.config.get("team", "members")
 
-    def __init__(self, arg):
+    def __init__(self, **arg):
         if not Config.instance:
-            Config.instance = Config.__Config(arg)
+            Config.instance = Config.__Config(*arg)
 
     def __getattr__(self, name):
         return getattr(self.instance, name)

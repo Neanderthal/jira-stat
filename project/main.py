@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import getopt
-import process as pr
 import argparse
 
 from project import process
+import project.process as pr
 
 
 def get_projects(args):

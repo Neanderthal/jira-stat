@@ -1,25 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import json
-from ConfigParser import ConfigParser
+
 from collections import OrderedDict
+from configparser import ConfigParser
+from functools import reduce
 
 import texttable as tt
-from enum import Enum
 from jira import JIRA
 from numpy import mean, std
 
 from project.config import Config
-from issue_repository import IssueRepository, Statuses
-
-
-def open_jira():
-
-    config = Config('settings.cfg')
-    server = JIRA(server=config.url, basic_auth=(config.login, config.password))
-
-    return server
-
+from project.issue_repository import IssueRepository, Statuses
 
 def time_spent(issue, user):
     user_log = [worklog.timeSpentSeconds for
@@ -27,7 +19,6 @@ def time_spent(issue, user):
                 if worklog.updateAuthor.key == user.key]
     spent = reduce(lambda a, b: a+b, user_log)
     return spent
-
 
 def get_ratio(issues):
     values = [int(b.raw['fields']['workratio']) for b in issues if (
@@ -87,12 +78,12 @@ def get_users_by_project(server, project=''):
 
 
 def process():
-    server = open_jira()
-    config = ConfigParser()
-    config.read("settings.cfg")
+    config = Config()
+    server = JIRA(server=config.url, basic_auth=(config.login, config.password))
+
     tab = tt.Texttable()
     tab.header(['name','devd','time','fin','closed','ratio','sko','',''])
-    members = json.loads(config.get("team", "members"))
+    members = json.loads(config.team_members())
     for member in members:
         user = server.search_users(member)[0]
         user_stat = get_full_stat(server, user)
@@ -100,9 +91,9 @@ def process():
     print(tab.draw())
 
 def process_for_user(name='g.frolov'):
-    server = open_jira()
-    config = ConfigParser()
-    config.read("settings.cfg")
+    config = Config()
+    server = JIRA(server=config.url, basic_auth=(config.login, config.password))
+
     tab = tt.Texttable()
     tab.header(
         ['name', 'devd', 'time', 'fin', 'closed', 'ratio', 'sko', '', ''])
