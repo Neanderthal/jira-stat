@@ -3,7 +3,6 @@
 import json
 
 from collections import OrderedDict
-from configparser import ConfigParser
 from functools import reduce
 
 import texttable as tt
