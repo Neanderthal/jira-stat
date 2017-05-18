@@ -7,7 +7,6 @@ from jira_issue import get_jira_issue
 config = Config()
 
 
-
 if __name__ == '__main__':
     stash = stashy.connect(config.stash, config.login, config.password)
     repository = stash.projects['BUDG'].repos['web_bb']
