@@ -1,7 +1,6 @@
 # coding: utf-8
 from aenum import Enum
 
-
 class Statuses(Enum):
     closed = u"Закрыт"
     for_dev = u"'К разработке'"
@@ -12,6 +11,12 @@ class Statuses(Enum):
     review = u"Ревью"
     check = u"Тестирование"
     approve = u"Приемка"
+
+
+class Projects(Enum):
+    bobuh = u"BOBUH"
+    bozik = u"BOZIK"
+    itosdabug = u"ITOSDABUG"
 
 
 class IssueRepository(object):

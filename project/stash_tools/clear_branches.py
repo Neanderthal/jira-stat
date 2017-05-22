@@ -4,9 +4,7 @@ import shlex
 import subprocess
 
 import re
-
 from jira import JIRA
-
 from config import Config
 
 config = Config()
@@ -27,7 +25,13 @@ closed_issues = [issue for issue in issues if issue.fields.status.name == u'За
 
 branches_from_closed_issues = [tasks[issue.key] for issue in closed_issues]
 
-print branches_from_closed_issues
+for branch in branches_from_closed_issues:
+    delete_string = shlex.split("git push origin --delete {}".format(branch.replace('remotes/origin/','')))
+    process = subprocess.Popen(delete_string, cwd="/home/sergey/PycharmProjects/web_bb", stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+    output, error = process.communicate()
+
+    print output
+    print error
 
 
 

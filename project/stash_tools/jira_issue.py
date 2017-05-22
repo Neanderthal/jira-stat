@@ -23,7 +23,7 @@ class StashJira(Stash):
     def __init__(self, base_url, username=None, password=None, oauth=None, verify=True, session=None):
         self._client = StashJiraClient(base_url, username, password, oauth, verify, session=session)
 
-def get_jira_issue(pulrequest, pull_requests, config):
+def get_jira_issues_for_pulreq(pulrequest, pull_requests, config):
     stash_jira = StashJira(pull_requests._client._base_url, config.login,
                            config.password,
                            session=pull_requests._client._session)
