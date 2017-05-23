@@ -10,6 +10,7 @@ class Statuses(Enum):
     eval = u"Оценка"
     review = u"Ревью"
     check = u"Тестирование"
+    realized = u"Реализован"
     approve = u"Приемка"
 
 

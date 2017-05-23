@@ -58,7 +58,7 @@ def change_issue_assignee_in_unapproved_pulreq(opened, pull_requests):
 
 def get_realised_issues():
     status__format = u"project = {} AND status = {}".format(
-        Projects.bobuh.value, Statuses.approve.value)
+        Projects.bobuh.value, Statuses.realized.value)
     jira_issue = server.search_issues(status__format)
 
     return jira_issue
@@ -82,16 +82,16 @@ if __name__ == '__main__':
             break
         in_test_commits.append(f_commit['displayId'])
 
+    result = []
     for key in realized_names:
-        after_issue_commits = get_commits_for_task('/issues/{}/commits'.format(key), repository, repository._client, config)
-        all_tested = list(get_tested(after_issue_commits, key, in_test_commits))
-        result = []
-        key_false = True
-        for key, value in all_tested:
-            key_false = key_false and value
-            if not key_false:
-                result.append(key)
+        after_issue_commits = get_commits_for_task('/issues/{}/commits'.format(key),
+                                                   repository, repository._client, config)['values']
+        #all_tested = list(get_tested(after_issue_commits, key, in_test_commits))
 
+        #key_false = True
+        for commit in after_issue_commits:
+            if commit['toCommit']['displayId'] == u'e3f97890f92':
+                result.append(key)
 
     print ''
 
