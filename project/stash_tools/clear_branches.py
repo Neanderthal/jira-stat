@@ -5,7 +5,8 @@ import subprocess
 
 import re
 from jira import JIRA
-from config import Config
+
+from project.config import Config
 
 config = Config()
 remotes = shlex.split("git branch --all --merged default")

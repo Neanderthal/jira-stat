@@ -2,9 +2,9 @@
 import stashy
 from jira import JIRA
 
-from issue_repository import Projects, Statuses
 from project.config import Config
-from jira_issue import get_jira_issues_for_pulreq
+from jira_issue import get_jira_issues_for_pulreq, get_commits_for_task
+from project.issue_repository import Projects, Statuses
 
 config = Config()
 server = JIRA(server=config.url,
@@ -16,15 +16,6 @@ def get_repository_from_stash():
     return repository
 
 
-def filter_opened_bobuh_pulreq(pull_requests):
-    requests = list(pull_requests)
-    return [request for request in requests if
-                       'BOBUH' in request['title'] and request['open']]
-
-def filter_merged_bobuh_pulreq(requests):
-    title_ = [request for request in requests if 'BOBUH' in request['title']]
-    return title_
-
 def is_reviewer_in_admin_list(reviewer_email):
     is_reviewer_in_admin_list = reviewer_email not in [
         u'yuri.lya@fogstream.ru',
@@ -32,6 +23,7 @@ def is_reviewer_in_admin_list(reviewer_email):
         u'dechernyshov@bars-open.ru',
         u'kirov@bars-open.ru']
     return is_reviewer_in_admin_list
+
 
 def get_unapproves(pulrequest):
     approves = []
@@ -71,25 +63,35 @@ def get_realised_issues():
 
     return jira_issue
 
+def get_tested(commits, key, test_commits):
+    latest_commits = []
+    for commit in commits['values']:
+        for f_commit in test_commits:
+            if f_commit == commit['toCommit']['displayId']:
+                yield key, True
+    yield key, False
 
 
 if __name__ == '__main__':
     realized = get_realised_issues()
     realized_names = [issue.key for issue in realized]
     repository = get_repository_from_stash()
-    pull_requests = repository.pull_requests.all(state = 'MERGED', limit = 50)
-    filtered_requests = filter_merged_bobuh_pulreq(pull_requests)
+    in_test_commits = []
+    for f_commit in repository.commits(until='refs/heads/test'):
+        if f_commit['displayId'] == u'43e1f54870f':
+            break
+        in_test_commits.append(f_commit['displayId'])
 
     for key in realized_names:
-        for request in filtered_requests:
-            pull_request = pull_requests[request['id']].get()
-            print pull_request
+        after_issue_commits = get_commits_for_task('/issues/{}/commits'.format(key), repository, repository._client, config)
+        all_tested = list(get_tested(after_issue_commits, key, in_test_commits))
+        result = []
+        key_false = True
+        for key, value in all_tested:
+            key_false = key_false and value
+            if not key_false:
+                result.append(key)
 
 
-    # pull_requests = repository.pull_requests
-    # opened_requests = filter_opened_bobuh_pulreq(pull_requests)
-
-    #for opened in opened_reque
-    #       change_issue_assignee_in_unapproved_pulreq(opened, pull_requests)
-
+    print ''
 

@@ -21,6 +21,7 @@ class StashJiraClient(StashClient):
 
 class StashJira(Stash):
     def __init__(self, base_url, username=None, password=None, oauth=None, verify=True, session=None):
+        super(StashJira, self).__init__(base_url, username, password, oauth, verify, session)
         self._client = StashJiraClient(base_url, username, password, oauth, verify, session=session)
 
 def get_jira_issues_for_pulreq(pulrequest, pull_requests, config):
@@ -29,5 +30,13 @@ def get_jira_issues_for_pulreq(pulrequest, pull_requests, config):
                            session=pull_requests._client._session)
     issue = StashIssue(pulrequest['link']['url'] + '/issues',
                        stash_jira._client, pull_requests)
+    issue_res = issue.get()
+    return issue_res
+
+def get_commits_for_task(url, parent, client, config):
+    stash_jira = StashJira(client._base_url, config.login,
+                           config.password,
+                           session=client._session)
+    issue = StashIssue(url, stash_jira._client, parent)
     issue_res = issue.get()
     return issue_res

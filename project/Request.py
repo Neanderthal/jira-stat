@@ -1,4 +1,4 @@
-from issue_repository import get_full_stat
+from project.process import get_full_stat
 
 
 class Request(object):
