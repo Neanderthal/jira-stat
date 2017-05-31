@@ -9,6 +9,7 @@ config = Config()
 server = JIRA(server=config.url,
               basic_auth=(config.login, config.password))
 
+
 def get_repository_from_stash():
     stash = stashy.connect(config.stash, config.login, config.password)
     repository = stash.projects['BUDG'].repos['web_bb']
@@ -18,7 +19,8 @@ def get_repository_from_stash():
 def filter_opened_bobuh_pulreq(pull_requests):
     requests = pull_requests.list()
     return [request for request in requests if
-                       'BOBUH' in request['title'] and request['open']]
+            'BOBUH' in request['title'] and request['open']]
+
 
 def is_reviewer_in_admin_list(reviewer_email):
     is_reviewer_in_admin_list = reviewer_email not in [
@@ -27,6 +29,7 @@ def is_reviewer_in_admin_list(reviewer_email):
         u'dechernyshov@bars-open.ru',
         u'kirov@bars-open.ru']
     return is_reviewer_in_admin_list
+
 
 def get_unapproves(pulrequest):
     approves = []
@@ -61,7 +64,6 @@ def change_issue_assignee_in_unapproved_pulreq(opened, pull_requests):
                                     unapproves[0][u'user'][u'name'])
 
 
-
 if __name__ == '__main__':
     repository = get_repository_from_stash()
     pull_requests = repository.pull_requests
@@ -69,5 +71,3 @@ if __name__ == '__main__':
 
     for opened in opened_requests:
         change_issue_assignee_in_unapproved_pulreq(opened, pull_requests)
-
-

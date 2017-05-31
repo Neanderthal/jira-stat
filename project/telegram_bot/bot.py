@@ -2,24 +2,21 @@
 import time
 import telebot
 
+from datetime import datetime
 from jira import JIRA
-
-from config import Config
+from project.config import Config
+from project.models.issue import IssueLists, ISSUE_TYPE
 
 FOGSTREAM_FILTER = 'filter=22538'
 
 config = Config()
 mychat_id = 113200632
 #mychat_id = -214342832
-number_of_issues = 0
 
-config = Config()
+
 bot = telebot.TeleBot(config.token)
-ls = bot.get_updates(allowed_updates=["channel_post"])
+#ls = bot.get_updates(allowed_updates=["channel_post"])
 
-@bot.message_handler(content_types=["text"])
-def repeat_all_messages(message): # Название функции не играет никакой роли, в принципе
-    bot.send_message(message.chat.id, message.text)
 
 if __name__ == '__main__':
     while True:
@@ -27,9 +24,12 @@ if __name__ == '__main__':
                       basic_auth=(config.login, config.password))
         fogstream_issues = server.search_issues(FOGSTREAM_FILTER)
 
-        for issue in fogstream_issues
-        count = len(fogstream_issues)
-        if count != number_of_issues and count < 3:
-            bot.send_message(mychat_id, u'У фогстрима осталось {} задач'.format(count))
-            number_of_issues = count
-        time.sleep(3600)
+        issue_string = u', '.join([issue.key for issue in fogstream_issues])
+
+        issues_list = IssueLists(list_type = ISSUE_TYPE.fogstream.value, time = datetime.now(), issues = issue_string)
+        if(issues_list.is_new()):
+            issues_list.save()
+            count = len(fogstream_issues)
+            if count < 5:
+                bot.send_message(mychat_id, u'У фогстрима осталось {} задач'.format(count))
+        time.sleep(600)
