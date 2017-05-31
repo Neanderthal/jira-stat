@@ -54,7 +54,7 @@ def change_issue_assignee_in_unapproved_pulreq(opened, pull_requests):
             print u"Проверяю " + issue_key
 
             if (jira_issue[0].fields.assignee.emailAddress == u's.istomin@bars-open.ru' and
-                jira_issue[0].fields.status.name == u"Ревью"):
+                    (jira_issue[0].fields.status.name == u"Ревью" or jira_issue[0].fields.status.name == u"На ревью")):
                 print u'Изменяю assignee в задаче ' + issue_key + u' на ' + \
                       unapproves[0][u'user'][u'name']
                 server.assign_issue(jira_issue[0],

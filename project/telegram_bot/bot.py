@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 import time
 import telebot
+
 from jira import JIRA
 
-config = Config()
+from config import Config
 
-#mychat_id = 113200632
-mychat_id = -214342832
+FOGSTREAM_FILTER = 'filter=22538'
+
+config = Config()
+mychat_id = 113200632
+#mychat_id = -214342832
 number_of_issues = 0
 
 config = Config()
@@ -18,11 +22,13 @@ def repeat_all_messages(message): # Название функции не игр�
     bot.send_message(message.chat.id, message.text)
 
 if __name__ == '__main__':
-    bot.send_message(mychat_id, '/getreviewers@JiraMessagesBot')
     while True:
         server = JIRA(server=config.url,
                       basic_auth=(config.login, config.password))
-        count = len(server.search_issues('filter=22538'))
+        fogstream_issues = server.search_issues(FOGSTREAM_FILTER)
+
+        for issue in fogstream_issues
+        count = len(fogstream_issues)
         if count != number_of_issues and count < 3:
             bot.send_message(mychat_id, u'У фогстрима осталось {} задач'.format(count))
             number_of_issues = count
