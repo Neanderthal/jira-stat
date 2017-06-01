@@ -2,9 +2,9 @@
 import stashy
 from jira import JIRA
 
-from project.config import Config
 from jira_issue import get_jira_issues_for_pulreq, get_commits_for_task
-from project.issue_repository import Projects, Statuses
+from models.issue_repository import Projects, Statuses
+from project.config import Config
 
 config = Config()
 server = JIRA(server=config.url,

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import json
-
 from collections import OrderedDict
 from functools import reduce
 
@@ -9,8 +8,8 @@ import texttable as tt
 from jira import JIRA
 from numpy import mean, std
 
+from models.issue_repository import IssueRepository, Statuses
 from project.config import Config
-from project.issue_repository import IssueRepository, Statuses
 
 def time_spent(issue, user):
     user_log = [worklog.timeSpentSeconds for

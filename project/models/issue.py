@@ -1,12 +1,16 @@
 # coding=utf-8
+
 from aenum import AutoNumberEnum, Enum
 from peewee import *
 
-db = SqliteDatabase('jira.db')
+from project.db import db
 
 
-class ISSUE_TYPE(AutoNumberEnum):
-    fogstream = u"Фогстрим"
+class TEAMS(Enum):
+    BOBUH = "БО.Разработка Бух"
+
+class ISSUE_TYPE(Enum):
+    multitasking = u"Многозадачность"
 
     @classmethod
     def to_tuple_array(cls):
@@ -24,11 +28,15 @@ class Issue(Model):
         database = db  # This model uses the "people.db" database.
 
 
-class Flags(Model):
-    fogstream_empty = TimeField(null=True)
+class FlagType(Model):
+    name = CharField()
+    repeat_time_minutes = IntegerField()
+    message = TextField()
+    teamlead_message = TextField()
 
     class Meta:
         database = db  # This model uses the "people.db" database.
+
 
 
 class IssueLists(Model):
@@ -46,6 +54,39 @@ class IssueLists(Model):
 
         return self == latest
 
+class Team(Model):
+    name = CharField()
+    jira_name = CharField
+
+    class Meta:
+        database = db  # This model uses the "people.db" database.
 
 
+class Developer(Model):
+    email = CharField()
+    name = CharField()
+    telegram = CharField()
+    telegram_id = CharField()
+    is_admin = BooleanField()
+
+    class Meta:
+        database = db  # This model uses the "people.db" database.
+
+
+class Developer_in_Team(Model):
+    team = ForeignKeyField(Team)
+    developer = ForeignKeyField(Developer)
+
+    class Meta:
+        database = db  # This model uses the "people.db" database.
+
+
+class DeveloperFlags(Model):
+    start_time = DateTimeField()
+    type = ForeignKeyField(FlagType)
+    developer = ForeignKeyField(Developer)
+    count = IntegerField()
+
+    class Meta:
+        database = db  # This model uses the "people.db" database.
 
