@@ -3,7 +3,7 @@ import stashy
 from jira import JIRA
 
 from jira_issue import get_jira_issues_for_pulreq, get_commits_for_task
-from models.issue_repository import Projects, Statuses
+from project.models.issue_repository import Projects, Statuses
 from project.config import Config
 
 config = Config()
@@ -14,46 +14,6 @@ def get_repository_from_stash():
     stash = stashy.connect(config.stash, config.login, config.password)
     repository = stash.projects['BUDG'].repos['web_bb']
     return repository
-
-
-def is_reviewer_in_admin_list(reviewer_email):
-    is_reviewer_in_admin_list = reviewer_email not in [
-        u'yuri.lya@fogstream.ru',
-        u's.istomin@bars-open.ru',
-        u'dechernyshov@bars-open.ru',
-        u'kirov@bars-open.ru']
-    return is_reviewer_in_admin_list
-
-
-def get_unapproves(pulrequest):
-    approves = []
-    for approve in list(pulrequest['reviewers']):
-        reviewer_email = approve[u'user'][u'emailAddress']
-        if is_reviewer_in_admin_list(reviewer_email):
-            approves.append(approve)
-
-    return [issue for issue in approves if not issue['approved']]
-
-
-def change_issue_assignee_in_unapproved_pulreq(opened, pull_requests):
-    pulrequest = pull_requests[opened['id']].get()
-    unapproves = get_unapproves(pulrequest)
-    issues = get_jira_issues_for_pulreq(pulrequest, pull_requests, config)
-    # Если к пулреквесту привязана одна задача и пулреквест не проаппрувлен
-    # кем нибудь кроме меня передаем задачу ему
-    if unapproves:
-        for issue in issues:
-            issue_key = issue[u'key']
-
-            jira_issue = server.search_issues(u"issue = {}".format(issue_key))
-
-            print u"Проверяю " + issue_key
-
-            if jira_issue[0].fields.assignee.emailAddress == u's.istomin@bars-open.ru':
-                print u'Изменяю assignee в задаче ' + issue_key + u' на ' + \
-                      unapproves[0][u'user'][u'name']
-                server.assign_issue(jira_issue[0],
-                                    unapproves[0][u'user'][u'name'])
 
 
 def get_realised_issues():
@@ -72,26 +32,37 @@ def get_tested(commits, key, test_commits):
     yield key, False
 
 
-if __name__ == '__main__':
-    realized = get_realised_issues()
-    realized_names = [issue.key for issue in realized]
-    repository = get_repository_from_stash()
+def check_issue_commits_in_test():
+    pass
     in_test_commits = []
     for f_commit in repository.commits(until='refs/heads/test'):
         if f_commit['displayId'] == u'43e1f54870f':
             break
         in_test_commits.append(f_commit['displayId'])
 
-    result = []
-    for key in realized_names:
-        after_issue_commits = get_commits_for_task('/issues/{}/commits'.format(key),
-                                                   repository, repository._client, config)['values']
-        #all_tested = list(get_tested(after_issue_commits, key, in_test_commits))
+    # for key in realized_names:
+    #     after_issue_commits = get_commits_for_task('/issues/{}/commits'.format(key),
+    #                                                repository, repository._client, config)['values']
+    #     #all_tested = list(get_tested(after_issue_commits, key, in_test_commits))
+    #
+    #     #key_false = True
+    #     for commit in after_issue_commits:
+    #         if commit['toCommit']['displayId'] == u'e3f97890f92':
+    #             result.append(key)
 
-        #key_false = True
-        for commit in after_issue_commits:
-            if commit['toCommit']['displayId'] == u'e3f97890f92':
-                result.append(key)
 
-    print ''
+if __name__ == '__main__':
+    realized = get_realised_issues()
+    realized_names = [issue.key for issue in realized]
+    repository = get_repository_from_stash()
+
+
+    #check_issue_commits_in_test()
+    for jira_issue in realized:
+        transitions = server.transitions(jira_issue)
+        transition_id = [trans for trans in transitions if Statuses.approve.value in trans['name'] ][0]['id']
+        server.transition_issue(jira_issue.key, transition_id)
+        print u"{} в приемке".format(jira_issue.key)
+
+
 
