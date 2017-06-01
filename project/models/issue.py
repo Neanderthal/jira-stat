@@ -1,7 +1,10 @@
 # coding=utf-8
+from datetime import datetime, time
 
-from aenum import AutoNumberEnum, Enum
+from aenum import Enum
 from peewee import *
+from pytz import timezone
+from tzlocal import get_localzone
 
 from project.db import db
 
@@ -62,12 +65,32 @@ class Team(Model):
         database = db  # This model uses the "people.db" database.
 
 
+class Region(Model):
+    name = CharField()
+    time_zone = CharField()
+
+    def is_working_time(self):
+        now = self.now()
+        return (now.hour > 8 and now.hour < 20)
+
+    def now(self):
+        now = datetime.now()
+        local_tz = get_localzone()
+        tz = timezone(local_tz.zone)
+        localize = tz.localize(now)
+        return localize.astimezone(timezone(self.time_zone))
+
+    class Meta:
+        database = db  # This model uses the "people.db" database.
+
+
 class Developer(Model):
     email = CharField()
     name = CharField()
     telegram = CharField()
     telegram_id = CharField()
     is_admin = BooleanField()
+    region = ForeignKeyField(Region)
 
     class Meta:
         database = db  # This model uses the "people.db" database.

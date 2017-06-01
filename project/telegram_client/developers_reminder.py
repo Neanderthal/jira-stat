@@ -6,7 +6,7 @@ from pytg.sender import Sender
 from pytg.receiver import Receiver
 
 from models.issue import Developer_in_Team, Developer, Team, TEAMS, FlagType, \
-    ISSUE_TYPE, DeveloperFlags
+    ISSUE_TYPE, DeveloperFlags, Region
 from models.issue_repository import Statuses
 from models.jira_api import server
 
@@ -29,10 +29,13 @@ def is_pause_overtime(flag_type, flag):
 
 def send_message(flag_type, developer):
     message = flag_type.message.format(developer.name)
-    sender.execute_function(u"msg", developer.telegram, message)
+    if (developer.region.is_working_time()):
+        sender.execute_function(u"msg", developer.telegram, message)
 
-    teamlead_message = flag_type.teamlead_message.format(developer.email)
-    sender.execute_function(u"msg", u"Sergey_Istomin", teamlead_message)
+        teamlead_message = flag_type.teamlead_message.format(developer.email)
+        sender.execute_function(u"msg", u"Sergey_Istomin", teamlead_message)
+        return True
+    return False
 
 
 def get_issues(developer):
@@ -65,17 +68,16 @@ if __name__ == '__main__':
             except:
                 flag = None
 
+            issues = get_issues(developer)
             if(not flag):
-                if len(get_issues(developer)) > 1:
-                    send_message(flag_type, developer)
-                    set_flag(flag_type, developer)
+                if len(issues) > 1:
+                    if(send_message(flag_type, developer)):
+                        set_flag(flag_type, developer)
             elif is_pause_overtime(flag_type, flag):
-                if(len(get_issues(developer)) > 1):
+                if(len(issues) > 1):
                     send_message(flag_type, developer)
                 else:
                     flag.delete_instance()
 
-
-
-        time.sleep(6)
+        time.sleep(60)
 
