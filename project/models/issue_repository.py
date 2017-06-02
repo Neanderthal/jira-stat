@@ -16,6 +16,12 @@ class Statuses(Enum):
     approve = u"Приемка"
 
 
+class IssueType(Enum):
+    error = u"Инцидент/Ошибка"
+    accident = u"Инцидент"
+    problem = u"Ошибка/Проблема при работе приложения"
+
+
 class Projects(Enum):
     bobuh = u"BOBUH"
     bozik = u"BOZIK"

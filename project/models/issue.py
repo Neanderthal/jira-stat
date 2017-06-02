@@ -6,7 +6,7 @@ from peewee import *
 from pytz import timezone
 from tzlocal import get_localzone
 
-from project.db import db
+from db import db
 
 
 class TEAMS(Enum):
@@ -96,11 +96,12 @@ class Developer(Model):
         database = db  # This model uses the "people.db" database.
 
 
-class Developer_in_Team(Model):
+class DeveloperInTeam(Model):
     team = ForeignKeyField(Team)
     developer = ForeignKeyField(Developer)
 
     class Meta:
+        db_table = 'developer_in_team'
         database = db  # This model uses the "people.db" database.
 
 
@@ -113,3 +114,12 @@ class DeveloperFlags(Model):
     class Meta:
         database = db  # This model uses the "people.db" database.
 
+class FileStat(Model):
+    path = CharField(max_length=1024)
+    file_name = CharField()
+    issues = CharField(max_length=2024)
+    incidents = IntegerField()
+    errors = IntegerField()
+
+    class Meta:
+        database = db  # This model uses the "people.db" database.
