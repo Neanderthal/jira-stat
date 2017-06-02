@@ -22,7 +22,7 @@ def get_issues(issues_string):
 
 if __name__ == '__main__':
     config = Config()
-    for d, dirs, files in os.walk("/home/sergey/PycharmProjects/web_bb"):
+    for d, dirs, files in os.walk("/home/sergey/PycharmProjects/web_bb/src/web_bb"):
         if "./" in d:
             continue
         for file in files:
