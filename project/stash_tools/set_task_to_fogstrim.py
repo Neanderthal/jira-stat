@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import sys
 
 from jira import JIRA
 
-from config import Config
+from project.config import Config
 
 cfg = Config()
 server = JIRA(server=cfg.url,
@@ -16,7 +17,7 @@ if __name__ == '__main__':
     try:
         issue, time = (sys.argv[1], sys.argv[2])
     except IndexError:
-        print "Usage: set_task_to_fogstrim.py <issue_key> <time>"
+        print("Usage: set_task_to_fogstrim.py <issue_key> <time>")
         sys.exit(1)
 
     jira_issue = server.issue(issue)
