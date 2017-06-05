@@ -3,10 +3,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import re
 import sys
+sys.path.append('..')
 
 from jira import JIRA
 
-from project.config import Config
+from config import Config
 
 cfg = Config()
 server = JIRA(server=cfg.url,
