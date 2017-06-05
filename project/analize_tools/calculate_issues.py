@@ -34,6 +34,7 @@ if __name__ == '__main__':
             output, error = process.communicate()
             strings = output.split("\n")
             tasks = []
+
             for string in strings:
                 found = re.search(r'BOBUH-\d{4}', string)
                 if found:
