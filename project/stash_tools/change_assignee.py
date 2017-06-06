@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# Скрипт проверет пулреквесты, если среди них есть незааппрувленные, другими
+# ревьюверами, но при этом задача на мен, то передаем задачу ему.
+
 from __future__ import print_function
 import stashy
 from jira import JIRA
