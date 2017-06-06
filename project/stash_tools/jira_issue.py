@@ -15,6 +15,10 @@ class StashIssue(ResourceBase):
         return self._client.get(self.url())
 
 
+class TempoJiraClient(StashClient):
+    core_api_name = '/rest/tempo-rest'
+    core_api_path = '/rest/tempo-rest/1.0'
+
 class StashJiraClient(StashClient):
     core_api_name = 'jira'
     core_api_path = 'jira/1.0'
@@ -23,6 +27,11 @@ class StashJira(Stash):
     def __init__(self, base_url, username=None, password=None, oauth=None, verify=True, session=None):
         super(StashJira, self).__init__(base_url, username, password, oauth, verify, session)
         self._client = StashJiraClient(base_url, username, password, oauth, verify, session=session)
+
+class TempoJira(Stash):
+    def __init__(self, base_url, username=None, password=None, oauth=None, verify=True, session=None):
+        super(TempoJira, self).__init__(base_url, username, password, oauth, verify, session)
+        self._client = TempoJiraClient(base_url, username, password, oauth, verify, session=session)
 
 def get_jira_issues_for_pulreq(pulrequest, pull_requests, config):
     stash_jira = StashJira(pull_requests._client._base_url, config.login,
@@ -39,4 +48,18 @@ def get_commits_for_task(url, parent, client, config):
                            session=client._session)
     issue = StashIssue(url, stash_jira._client, parent)
     issue_res = issue.get()
+    return issue_res
+
+def update_tempo(url, parent, client, config):
+    stash_jira = TempoJira(client._base_url, config.login,
+                           config.password,
+                           session=client._session)
+    issue = StashIssue(url, stash_jira._client, parent)
+    issue_res = issue.get()
+
+    response = client.post(url, **kw)
+    maybe_throw(response)
+
+    data = response.json()
+
     return issue_res
